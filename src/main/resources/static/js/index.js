@@ -1,8 +1,8 @@
+//productRelates
 const getProducts = () => {
     return fetch('/api/products')
         .then(r => r.json());
 }
-
 const createProductHtmlElement = (product) => {
     const template = `
         <li>
@@ -15,25 +15,36 @@ const createProductHtmlElement = (product) => {
 
     return createHtmlElementFromString(template);
 }
-
 const createHtmlElementFromString = (htmlTemplate) => {
     const parentEl = document.createElement('div');
     parentEl.innerHTML = htmlTemplate.trim();
 
     return parentEl.firstChild;
 }
-
+//salesRelated
+const getCurrentOffer = () => {
+    return fetch('/api/sales/current-offer')
+            .then(r => r.json());
+}
+const refreshOffer = (cartEl, offer) => {
+    cartEl.querySelector('.cart__total').textContent = `${offer.total} PLN`;
+    cartEl.querySelector('.cart__itemsCount').textContent = `${offer.itemsCount}`;
+}
+//MAIN
 (() => {
-    const productListEl = document.querySelector('.products__list');
+    const cartEl = document.querySelector('.cart');
+    getCurrentOffer()
+        .then(offer => refreshOffer(cartEl, offer));
 
-    getProducts()
-        .then(products => {
-            products
-                .map(product => createProductHtmlElement(product))
-                .forEach(productHtml => {
-                    productListEl.appendChild(productHtml);
-                });
-        })
-        .catch(e => console.log(e));
+    const productListEl = document.querySelector('.products__list');
+        getProducts()
+            .then(products => {
+                products
+                    .map(product => createProductHtmlElement(product))
+                    .forEach(productHtml => {
+                        productListEl.appendChild(productHtml);
+                    });
+            })
+            .catch(e => console.log(e));
 })();
 
